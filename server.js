@@ -1,47 +1,6 @@
-// const express = require("express");
-// const cors = require("cors");
-// const dotenv = require("dotenv");
-// const path = require("path");
-
-// const connectDB = require("./config/db");
-
-
-// dotenv.config();
-
-// connectDB();
-
-// const app = express();
-
-
-// // Middleware
-// app.use(cors());
-// app.use(express.json());
-
-
-// // Serve Frontend
-// app.use(express.static(path.join(__dirname, "../frontend")));
-
-
-// // Routes
-// app.use("/notes", require("./routes/noteRoutes"));
-
-
-// const PORT = process.env.PORT || 5000;
-
-// app.listen(PORT, () => {
-//     console.log(`Server running on port ${PORT}`);
-// });
-
-
-
-
-
-
-
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const path = require("path");
 
 const connectDB = require("./config/db");
 
@@ -51,38 +10,33 @@ connectDB();
 
 const app = express();
 
-
-// CORS
-// app.use(cors());
-
-// app.use(cors());
-
-
+// ✅ CORS — must be BEFORE express.json() and all routes
 app.use(
   cors({
-    origin: "https://soft-souffle-2fe72e.netlify.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:3000",
+      "https://soft-souffle-2fe72e.netlify.app", // your production frontend
+    ],
     credentials: true,
   })
 );
 
-
-
-
-// Middleware
 app.use(express.json());
 
-
-// Serve Frontend
-app.use(express.static(path.join(__dirname, "../frontend")));
-
-
 // Routes
-app.use("/notes", require("./routes/noteRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/notes", require("./routes/noteRoutes"));
 
+app.get("/", (req, res) => {
+  res.send("API Running");
+});
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 9000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on ${PORT}`);
 });
+
+module.exports = app;
