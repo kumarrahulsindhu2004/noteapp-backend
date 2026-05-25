@@ -89,31 +89,31 @@ exports.createNote = async (req, res) => {
       user: req.user._id,
       title: req.body.title,
       content: req.body.content,
+      section: req.body.sectionId || null,  // optional
     });
-
     res.status(201).json(note);
-
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
-
 
 // Get Notes
 exports.getNotes = async (req, res) => {
   try {
-    const notes = await Note.find({
-      user: req.user._id,
-    }).sort({ createdAt: -1 });
+    const filter = { user: req.user._id };
 
+    // ?section=id  => section ki notes
+    // ?standalone=true => sirf standalone notes (no section)
+    if (req.query.section) {
+      filter.section = req.query.section;
+    } else if (req.query.standalone === "true") {
+      filter.section = null;
+    }
+
+    const notes = await Note.find(filter).sort({ createdAt: -1 });
     res.json(notes);
-
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
